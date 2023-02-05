@@ -8,7 +8,6 @@
         public int Beans {get;set;}
         public int Cups {get;set;}
         public int Money {get;set;}
-        
         public Coffee(string name, int water, int milk, int beans, int cups, int money)
         {
             CoffeeName = name;
