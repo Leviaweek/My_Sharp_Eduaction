@@ -1,0 +1,9 @@
+global using System;
+global using System.Collections.Generic;
+global using PacmanGame;
+global using PacmanGame.Objects;
+global using PacmanGame.Properties;
+global using PacmanGame.GameMenu;
+global using PacmanGame.Exceptions;
+global using PacmanGame.States;
+global using PacmanGame.GhostAlgorithm;
