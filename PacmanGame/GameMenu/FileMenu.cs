@@ -1,9 +1,18 @@
 namespace PacmanGame.GameMenu;
 
+/// <summary>
+/// class <c>FileMenu</c> is the file menu object.
+/// </summary>
 public class FileMenu
 {
+    /// <summary>
+    ///field <c>_linePrinted</c> is the number of lines printed.
+    /// </summary>
     private int _linePrinted;
 
+    /// <summary>
+    /// Method <c>ChoosePath</c> is the method to choose the path to the map.
+    /// </summary>
     public string ChoosePath()
     {
         Console.WriteLine("File is in path with game?");

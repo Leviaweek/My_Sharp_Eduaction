@@ -1,12 +1,22 @@
 namespace PacmanGame.Objects;
 
+/// <summary>
+/// class <c>Ghost</c> is the ghost object.
+/// <summary>
 public class Ghost : Player
 {
 
-
+    /// <summary>
+    /// Field <c>MoveInterval</c> is the time between moves.
     private protected override TimeSpan MoveInterval => TimeSpan.FromMilliseconds(280);
+
+    /// <summary>
+    /// Property  <c>Symbol</c> is ghost Symbol on the map.
     public override char Symbol { get; private protected set; } = '*';
 
+    /// <summary>
+    /// Method <c>Death</c> is the method that is called when the ghost dies.
+    /// </summary>
     private protected override void Death()
     {
         if (State == PlayerState.FreezeTime)
@@ -15,6 +25,10 @@ public class Ghost : Player
         State = PlayerState.FreezeTime;
     }
 
+    /// <summary>
+    /// Method <c>NextStep</c> is the method that is called when the ghost moves.
+    /// </summary>
+    /// <param name="loc">The location to move to.</param>
     private void NextStep(Position loc)
     {
         switch (State)
@@ -45,6 +59,9 @@ public class Ghost : Player
         }
     }
 
+    /// <summary>
+    /// Method <c>CheckState</c> is the method that is called when the ghost checks its state.
+    /// </summary>
     private protected override void CheckState()
     {
         switch (State)
@@ -72,6 +89,9 @@ public class Ghost : Player
         }
     }
 
+    /// <summary>
+    /// Method <c>Update</c> is the method that is called when the ghost updates.
+    /// </summary>
     private protected override void Update()
     {
         CheckState();
