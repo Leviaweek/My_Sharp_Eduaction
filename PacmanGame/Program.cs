@@ -18,6 +18,7 @@ internal static class Program
         }
         catch (InvalidMapException e)
         {
+            Console.Clear();
             Console.WriteLine(e.Message);
         }
         

@@ -1,9 +1,13 @@
-using System.Text.Json;
-
 namespace PacmanGame.GameMenu;
 
+/// <summary>
+/// class <c>MapLoader</c> is the map loader object.
+/// </summary>
 public static class MapLoader
 {
+    /// <summary>
+    /// Method <c>ReadMap</c> is the method for reading the map.
+    /// </summary>
     public static async Task<Map> ReadMap(string path)
     {
         if (!File.Exists(path))
@@ -28,7 +32,7 @@ public static class MapLoader
 
             for (var x = 0; x < text.Length; x++)
             {
-                if (text[x] == ' ')
+                if (text[x] == '0')
                     continue;
                 GameObject obj = text[x] switch
                 {

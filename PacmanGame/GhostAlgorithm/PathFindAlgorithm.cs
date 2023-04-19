@@ -1,9 +1,21 @@
 namespace PacmanGame.GhostAlgorithm;
 
+/// <summary>
+/// class <c>PathFinding</c> is the path finding algorithm.
+/// </summary>
 public class Pathfinding
 {
+    /// <summary>
+    /// Field <c>_map</c> is the map of the path finding algorithm.
+    /// </summary>
     private int[,]? _map;
 
+    /// <summary>
+    /// Method <c>CreateMap</c> is the method to create the map matrix of the path finding algorithm.
+    /// </summary>
+    /// <param name="mapObjects">The map objects.</param>
+    /// <param name="width">The width of the map.</param>
+    /// <param name="height">The height of the map.</param>
     public void CreateMap(IEnumerable<GameObject> mapObjects, int width, int height)
     {
         _map = new int[height, width];
@@ -14,6 +26,11 @@ public class Pathfinding
         }
     }
 
+    /// <summary>
+    /// Method <c>FindPath</c> is the method to find the path from the start position to the end position.
+    /// </summary>
+    /// <param name="start">The start position.</param>
+    /// <param name="end">The end position.</param>
     public List<Position> FindPath(Position start, Position end)
     {
         List<Position> path = new();
@@ -65,6 +82,11 @@ public class Pathfinding
         return path;
     }
 
+    /// <summary>
+    /// Method <c>GetNeighbors</c> is the method to get the neighbors of the path node.
+    /// </summary>
+    /// <param name="node">The path node.</param>
+    /// <param name="end">The end position.</param>
     private IEnumerable<PathNode> GetNeighbors(PathNode node, Position end)
     {
         var directions = new Position[]
@@ -91,5 +113,10 @@ public class Pathfinding
         }
     }
 
+    /// <summary>
+    /// Method <c>Heuristic</c> is the method to calculate the heuristic of the path node.
+    /// </summary>
+    /// <param name="a">The start position.</param>
+    /// <param name="b">The end position.</param>
     private static int Heuristic(Position a, Position b) => Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);
 }
