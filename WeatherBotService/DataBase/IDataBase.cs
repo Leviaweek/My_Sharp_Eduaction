@@ -1,13 +1,13 @@
 namespace WeatherBotService.DataBase;
 
-public interface IDataBase
+public interface IDataBase<T>
 {
-    public Task<List<IBotUser>> GetAllUsersAsync();
-    public Task OpenConnectionAsync();
-    public Task CloseConnectionAsync();
-    public Task UpdateUserAsync(IBotUser user);
-    public Task InsertUserAsync(IBotUser user);
-    public Task DeleteUserAsync(IBotUser user);
-    public Task CreateTableAsync();
-    public Task<bool> CheckUserAsync(IBotUser user);
+    public Task<List<T>> GetAllUsersAsync(CancellationToken cancellationToken=default);
+    public Task OpenConnectionAsync(CancellationToken cancellationToken=default);
+    public Task CloseConnectionAsync(CancellationToken cancellationToken=default);
+    public Task UpdateUserAsync(T obj, CancellationToken cancellationToken=default);
+    public Task InsertUserAsync(T obj, CancellationToken cancellationToken=default);
+    public Task DeleteUserAsync(T obj, CancellationToken cancellationToken=default);
+    public Task CreateTableAsync(CancellationToken cancellationToken=default);
+    public Task<bool> CheckUserAsync(T obj, CancellationToken cancellationToken=default);
 }

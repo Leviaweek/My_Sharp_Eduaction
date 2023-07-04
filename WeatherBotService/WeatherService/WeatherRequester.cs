@@ -12,12 +12,12 @@ public class WeatherRequester: IWeatherRequester
         _logger = logger;
         _appConfig = appConfig.Value;
     }
-    public async Task<WeatherResponse> GetWeatherAsync()
+    public async Task<WeatherResponse> GetWeatherAsync(CancellationToken cancellationToken = default)
     {
         var url = string.Format(_url, _appConfig.WeatherQuery, _appConfig.WeatherApiKey);
         _logger.LogDebug("Requesting weather from {url}", url);
         using var client = new HttpClient();
-        var response = await client.GetStringAsync(url);
+        var response = await client.GetStringAsync(url, cancellationToken);
         var weatherResponse = JsonSerializer.Deserialize<WeatherResponse>(response);
         if (weatherResponse is null)
         {

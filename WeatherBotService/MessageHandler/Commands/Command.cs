@@ -2,9 +2,9 @@ namespace WeatherBotService.MessageHandler.Commands;
 
 public abstract class Command
 {
-    protected IDataBase _dataBase;
+    protected IDataBase<TelegramBotUser> _dataBase;
 
-    public Command(IDataBase dataBase)
+    public Command(IDataBase<TelegramBotUser> dataBase)
     {
         _dataBase = dataBase;
     }

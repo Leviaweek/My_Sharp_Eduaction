@@ -9,22 +9,24 @@ public class WeatherSender: ISender
         _logger = logger;
     }
 
-    public async Task SendAsync(IBotApi botApi, IBotUser user)
+    public async Task SendAsync(IBotApi botApi, int chatId, CancellationToken cancellationToken = default)
     {
         if (!File.Exists("weather.json"))
         {
             _logger.LogError("Error sending weather: weather.json not found");
             return;
         }
-        var text = await File.ReadAllTextAsync("weather.json");
+        var text = await File.ReadAllTextAsync("weather.json", cancellationToken);
         var weather = JsonSerializer.Deserialize<WeatherJson>(text) ?? throw new ArgumentNullException(text);
-        var messageText = $"Main info: {weather.MainInfo}\n"+
-            $"Temperature: {weather.Temp}\n"+
-            $"Humidity: {weather.Humidity}\n"+
-            $"Wind speed: {weather.WindSpeed}\n"+
-            $"Ground level: {weather.GrndLevel}\n" +
-            $"Date and time: {weather.DateTime}";
-        await botApi.SendMessageAsync(user.ChatId, messageText);
+        var messageText = $"""
+            Main info: {weather.MainInfo}
+            Temperature: {weather.Temp}
+            Humidity: {weather.Humidity}
+            Wind speed: {weather.WindSpeed}
+            Ground level: {weather.GrndLevel}
+            Date and time: {weather.DateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")}
+            """;
+        await botApi.SendMessageAsync(chatId, messageText, cancellationToken);
         _logger.LogInformation("Message sended");
     }
 }

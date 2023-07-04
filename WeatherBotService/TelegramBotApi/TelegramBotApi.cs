@@ -16,13 +16,13 @@ public class TelegramBotApi : IBotApi
         _logger = logger;
     }
 
-    public async Task SendMessageAsync(int chatId, string message)
+    public async Task SendMessageAsync(int chatId, string message, CancellationToken cancellationToken = default)
     {
         var apiUrl = string.Format(Url, _options.Token, "sendMessage");
         using var httpClient = new HttpClient();
         var json = JsonSerializer.Serialize(new TelegramBotRequest { ChatId = chatId, Text = message });
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await httpClient.PostAsync(apiUrl, content);
+        var response = await httpClient.PostAsync(apiUrl, content, cancellationToken);
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("Error sending message {message} to chat {chatId}", message, chatId);

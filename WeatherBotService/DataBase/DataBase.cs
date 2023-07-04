@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
 namespace WeatherBotService.DataBase;
 
-public class DataBase : IDataBase
+public class DataBase : IDataBase<TelegramBotUser>
 {
     private readonly SqliteConnection _sqliteConnection;
     public DataBase(IOptions<DataBaseOptions> options)
@@ -10,54 +10,63 @@ public class DataBase : IDataBase
         var value = options.Value;
         _sqliteConnection = new SqliteConnection($"Data Source={value.FileName}");
     }
-    public async Task OpenConnectionAsync()
+    public async Task OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
-        await _sqliteConnection.OpenAsync();
+        await _sqliteConnection.OpenAsync(cancellationToken);
     }
-    public async Task CreateTableAsync()
+    public async Task CreateTableAsync(CancellationToken cancellationToken = default)
     {
 
-        var sqlExpression =
-        "CREATE TABLE IF NOT EXISTS 'Users' ("+
-        "'Id' INTEGER NOT NULL UNIQUE,"+
-        "'ChatId' INTEGER NOT NULL UNIQUE,"+
-        "'Location' TEXT NOT NULL," +
-        "'Language' TEXT NOT NULL," +
-        "PRIMARY KEY('Id')"+
-        ");";
+        var sqlExpression ="""
+        CREATE TABLE IF NOT EXISTS 'Users'(
+        'Id' INTEGER NOT NULL UNIQUE,
+        'ChatId' INTEGER NOT NULL UNIQUE,
+        'Location' TEXT NOT NULL,
+        'Language' TEXT NOT NULL,
+        PRIMARY KEY('Id')
+        );
+        """;
         var command = new SqliteCommand(sqlExpression, _sqliteConnection);
-        await command.ExecuteNonQueryAsync();
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
-    public async Task CloseConnectionAsync()
+    public async Task CloseConnectionAsync(CancellationToken cancellationToken = default)
     {
         await _sqliteConnection.CloseAsync();
     }
-    public async Task InsertUserAsync(IBotUser user)
+    public async Task InsertUserAsync(TelegramBotUser user, CancellationToken cancellationToken = default)
     {
-        var sqlExpression =
-        "INSERT INTO 'Users' (ChatId, Location, Language)" +
-        $"VALUES ({user.ChatId}, '{user.Location}', '{user.Language}');";
+        var sqlExpression = """
+        INSERT INTO 'Users' (ChatId, Location, Language)
+        VALUES (@ChatId, @Location, @Language);
+        """;
         var command = new SqliteCommand(sqlExpression, _sqliteConnection);
-        await command.ExecuteNonQueryAsync();
+        command.Parameters.AddWithValue("@ChatId", user.ChatId);
+        command.Parameters.AddWithValue("@Location", user.Location);
+        command.Parameters.AddWithValue("@Language", user.Language);
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
-    public async Task UpdateUserAsync(IBotUser user)
+    public async Task UpdateUserAsync(TelegramBotUser user, CancellationToken cancellationToken = default)
     {
-        var sqlExpression = $"UPDATE Users SET Location = {user.Location}, Language = {user.Language} WHERE Id = {user.ChatId};";
+        var sqlExpression = $"UPDATE Users SET Location = @Location, Language = @Language WHERE Id = @ChatId;";
         var command = new SqliteCommand(sqlExpression, _sqliteConnection);
-        await command.ExecuteNonQueryAsync();
+        command.Parameters.AddWithValue("@ChatId", user.ChatId);
+        command.Parameters.AddWithValue("@Location", user.Location);
+        command.Parameters.AddWithValue("@Language", user.Language);
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
-    public async Task DeleteUserAsync(IBotUser user)
+    public async Task DeleteUserAsync(TelegramBotUser user, CancellationToken cancellationToken = default)
     {
-        var sqlExpression = $"DELETE FROM 'Users' WHERE ChatId={user.ChatId}";
+        var sqlExpression = $"DELETE FROM 'Users' WHERE ChatId=@ChatId";
         var command = new SqliteCommand(sqlExpression, _sqliteConnection);
-        await command.ExecuteNonQueryAsync();
+        command.Parameters.AddWithValue("@ChatId", user.ChatId);
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
-    public async Task<List<IBotUser>> GetAllUsersAsync()
+    public async Task<List<TelegramBotUser>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
         var sqlExpression = "SELECT ChatId, Location, Language FROM 'Users'";
         var command = new SqliteCommand(sqlExpression, _sqliteConnection);
-        var users = new List<IBotUser>();;
-        using var reader = await command.ExecuteReaderAsync();
+        var users = new List<TelegramBotUser>();;
+        using var reader = await command.ExecuteReaderAsync(cancellationToken);
         if (reader.HasRows)
         {
             while (reader.Read())
@@ -70,11 +79,12 @@ public class DataBase : IDataBase
         }
         return users;
     }
-    public async Task<bool> CheckUserAsync(IBotUser user)
+    public async Task<bool> CheckUserAsync(TelegramBotUser user, CancellationToken cancellationToken = default)
     {
-        var sqlExpression = $"SELECT Count(*) FROM 'Users' WHERE ChatId={user.ChatId}";
+        var sqlExpression = $"SELECT Count(*) FROM 'Users' WHERE ChatId=@ChatId";
         var command = new SqliteCommand(sqlExpression, _sqliteConnection);
-        using var reader = await command.ExecuteReaderAsync();
+        command.Parameters.AddWithValue("@ChatId", user.ChatId);
+        using var reader = await command.ExecuteReaderAsync(cancellationToken);
         reader.Read();
         if (reader.GetInt32(0) > 0)
             return true;

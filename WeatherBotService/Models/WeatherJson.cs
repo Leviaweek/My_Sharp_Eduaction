@@ -17,7 +17,7 @@ public record class WeatherJson
     [JsonPropertyName("windSpeed")]
     public required string WindSpeed { get; set; }
     [JsonPropertyName("dateTime")]
-    public required string DateTime { get; set; }
+    public required DateTimeOffset DateTime { get; set; }
 
     public static WeatherJson ConvertFrom(WeatherResponse weatherResponse)
     {
@@ -30,7 +30,7 @@ public record class WeatherJson
             Humidity = weatherResponse.Main.Humidity.ToString(CultureInfo.InvariantCulture),
             GrndLevel = weatherResponse.Main.GrndLevel.ToString(CultureInfo.InvariantCulture),
             WindSpeed = weatherResponse.Wind.Speed.ToString(CultureInfo.InvariantCulture),
-            DateTime = dateTimeOffset.ToString("yyyy-MM-ddTHH:mm:ssZ")
+            DateTime = dateTimeOffset
         };
     }
 }
