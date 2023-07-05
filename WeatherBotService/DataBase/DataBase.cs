@@ -6,10 +6,10 @@ public class DataBase : IDataBase<TelegramBotUser>, IAsyncDisposable
 {
     private readonly SqliteConnection _sqliteConnection;
     private bool _isOpened = false;
-    public DataBase(IOptions<DataBaseOptions> options)
+    public DataBase(IConfiguration configuration)
     {
-        var value = options.Value;
-        _sqliteConnection = new SqliteConnection($"Data Source={value.FileName}");
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        _sqliteConnection = new SqliteConnection($"Data Source={connectionString}");
     }
     public async Task OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
