@@ -1,6 +1,6 @@
 namespace WeatherBotService.DataBase;
 
-public interface IDataBase<T>
+public interface IDataBase<T>: IAsyncDisposable
 {
     public Task<List<T>> GetAllUsersAsync(CancellationToken cancellationToken=default);
     public Task OpenConnectionAsync(CancellationToken cancellationToken=default);

@@ -2,9 +2,10 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Options;
 namespace WeatherBotService.DataBase;
 
-public class DataBase : IDataBase<TelegramBotUser>
+public class DataBase : IDataBase<TelegramBotUser>, IAsyncDisposable
 {
     private readonly SqliteConnection _sqliteConnection;
+    private bool _isOpened = false;
     public DataBase(IOptions<DataBaseOptions> options)
     {
         var value = options.Value;
@@ -13,6 +14,8 @@ public class DataBase : IDataBase<TelegramBotUser>
     public async Task OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
         await _sqliteConnection.OpenAsync(cancellationToken);
+        _isOpened = true;
+        await CreateTableAsync(cancellationToken);
     }
     public async Task CreateTableAsync(CancellationToken cancellationToken = default)
     {
@@ -89,5 +92,15 @@ public class DataBase : IDataBase<TelegramBotUser>
         if (reader.GetInt32(0) > 0)
             return true;
         return false;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_isOpened)
+        {
+            await CloseConnectionAsync();
+
+            _isOpened = false;
+        }
+        GC.SuppressFinalize(this);
     }
 }

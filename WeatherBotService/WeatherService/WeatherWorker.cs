@@ -5,6 +5,7 @@ public class WeatherWorker : BackgroundService
 {
     private readonly ILogger<WeatherWorker> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    public const string WeatherFileName = "weather.json";
 
     public WeatherWorker(ILogger<WeatherWorker> logger, IServiceScopeFactory serviceScopeFactory)
     {
@@ -18,12 +19,11 @@ public class WeatherWorker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = _serviceScopeFactory.CreateAsyncScope();
-            var serviceProvider = scope.ServiceProvider;
-            var weatherRequester = serviceProvider.GetRequiredService<IWeatherRequester>();
+            var weatherRequester = scope.ServiceProvider.GetRequiredService<IWeatherRequester>();
             var weather = await weatherRequester.GetWeatherAsync(stoppingToken);
             _logger.LogInformation("{weather}", weather);
             var weatherJson = WeatherJson.ConvertFrom(weather);
-            File.WriteAllText("weather.json", JsonSerializer.Serialize(weatherJson));
+            await File.WriteAllTextAsync(WeatherFileName, JsonSerializer.Serialize(weatherJson), stoppingToken);
             await periodicTimer.WaitForNextTickAsync(stoppingToken);
         }
     }

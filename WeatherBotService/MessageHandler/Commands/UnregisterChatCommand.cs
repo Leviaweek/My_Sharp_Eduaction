@@ -9,7 +9,7 @@ public class UnregisterChatCommand : Command
 {
     private readonly string _commandText = "/unregister_chat";
     private readonly IBotApi _telegramBotApi;
-    public UnregisterChatCommand(IDataBase<TelegramBotUser> dataBase, IBotApi telegramBotApi) : base(dataBase)
+    public UnregisterChatCommand(IBotApi telegramBotApi)
     {
         _telegramBotApi = telegramBotApi;
     }
@@ -17,15 +17,15 @@ public class UnregisterChatCommand : Command
     {
         return result.Message.Text.StartsWith(_commandText);
     }
-    public async override Task ExecuteAsync(TelegramBotResponseResult result)
+    public async override Task ExecuteAsync(TelegramBotResponseResult result, IDataBase<TelegramBotUser> dataBase)
     {
         var user = new TelegramBotUser(result.Message.Chat.Id, "Dnipro,709930,UA", "en");
-        if (!await _dataBase.CheckUserAsync(user))
+        if (!await dataBase.CheckUserAsync(user))
         {
             await _telegramBotApi.SendMessageAsync(result.Message.Chat.Id, "You are not registered");
             return;
         }
-        await _dataBase.DeleteUserAsync(user);
+        await dataBase.DeleteUserAsync(user);
         await _telegramBotApi.SendMessageAsync(result.Message.Chat.Id, "You are unregistered");
     }
 }

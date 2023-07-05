@@ -13,11 +13,11 @@ builder.ConfigureServices((context, services) =>
     services.AddOptions<DataBaseOptions>()
     .Bind(context.Configuration.GetSection(DataBaseOptions.OptionsName))
     .ValidateOnStart();
-    services.AddScoped<IWeatherRequester, WeatherRequester>();
     services.AddSingleton<IMessageHandler, MessageHandlerWorker>();
     services.AddSingleton<IBotApi, TelegramBotApi>();
-    services.AddScoped<ISender, WeatherSender>();
-    services.AddSingleton<IDataBase<TelegramBotUser>, DataBase>();
+    services.AddScoped<IWeatherRequester, WeatherRequester>();
+    services.AddScoped<IDataBase<TelegramBotUser>, DataBase>();
+    services.AddTransient<ISender, WeatherSender>();
 });
 var app = builder.Build();
 await app.RunAsync();

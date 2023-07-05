@@ -11,18 +11,20 @@ public class MessageHandlerWorker: BackgroundService, IMessageHandler
     private readonly IBotApi _telegramBotApi;
     private readonly TelegramBotOptions _options;
     private const string Url = "https://api.telegram.org/bot{0}/{1}?offset={2}";
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private int _offset;
     private readonly List<Command> _commands;
-    public MessageHandlerWorker(ILogger<MessageHandlerWorker> logger, IBotApi telegramBotApi, IOptions<TelegramBotOptions> options, IDataBase<TelegramBotUser> database)
+    public MessageHandlerWorker(ILogger<MessageHandlerWorker> logger, IBotApi telegramBotApi, IOptions<TelegramBotOptions> options, IServiceScopeFactory serviceScopeFactory)
     {
         _logger = logger;
         _telegramBotApi = telegramBotApi;
         _options = options.Value;
         _offset = 0;
+        _serviceScopeFactory = serviceScopeFactory;
         _commands = new()
         {
-            new RegisterChatCommand(database, _telegramBotApi),
-            new UnregisterChatCommand(database, _telegramBotApi)
+            new RegisterChatCommand(_telegramBotApi),
+            new UnregisterChatCommand(_telegramBotApi)
         };
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -59,9 +61,12 @@ public class MessageHandlerWorker: BackgroundService, IMessageHandler
     }
     public async Task HandleResponseAsync(TelegramBotResponse telegramBotResponse)
     {
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        await using var dataBase = scope.ServiceProvider.GetRequiredService<IDataBase<TelegramBotUser>>();
+        await dataBase.OpenConnectionAsync();
         foreach (var result in telegramBotResponse.Result)
             foreach (var command in _commands)
                 if (command.Check(result))
-                    await command.ExecuteAsync(result);
+                    await command.ExecuteAsync(result, dataBase);
     }
 }

@@ -16,7 +16,7 @@ public class WeatherSender: ISender
             _logger.LogError("Error sending weather: weather.json not found");
             return;
         }
-        var text = await File.ReadAllTextAsync("weather.json", cancellationToken);
+        var text = await File.ReadAllTextAsync(WeatherWorker.WeatherFileName, cancellationToken);
         var weather = JsonSerializer.Deserialize<WeatherJson>(text) ?? throw new ArgumentNullException(text);
         var messageText = $"""
             Main info: {weather.MainInfo}
@@ -24,7 +24,7 @@ public class WeatherSender: ISender
             Humidity: {weather.Humidity}
             Wind speed: {weather.WindSpeed}
             Ground level: {weather.GrndLevel}
-            Date and time: {weather.DateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")}
+            Date and time: {weather.DateTime:yyyy-MM-ddTHH:mm:ssZ}
             """;
         await botApi.SendMessageAsync(chatId, messageText, cancellationToken);
         _logger.LogInformation("Message sended");
